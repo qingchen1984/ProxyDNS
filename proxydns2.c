@@ -12,6 +12,76 @@
 #define BACKLOG  10      /* Passed to listen() */
 #define BUF_SIZE 4096    /* Buffer for  transfers */
 
+#ifdef EMBEDDED
+#include <sys/utsname.h>
+#include <sys/mount.h>
+
+void showip(char *interface) {
+    int fd;
+    struct ifreq ifr;
+    
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    
+    /* I want to get an IPv4 IP address */
+    ifr.ifr_addr.sa_family = AF_INET;
+    
+    /* I want IP address attached to "eth0" */
+    strncpy(ifr.ifr_name, interface, IFNAMSIZ-1);
+    
+    ioctl(fd, SIOCGIFADDR, &ifr);
+    
+    close(fd);
+    
+    /* display result */
+    printf("IP address of %s: %s\n", interface, inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+}
+
+
+void unameinfo(void) {
+    struct utsname buffer;
+    if (uname(&buffer) != 0) {
+        perror("uname");
+        return;
+    }
+    printf("Running on %s %s %s %s\n", buffer.sysname,buffer.release,buffer.version,buffer.machine);
+}
+
+
+char* readfilestr(char *filename)
+{
+    char *buffer = NULL;
+    int string_size,read_size;
+    FILE *handler = fopen(filename,"r");
+    
+    if (handler)
+    {
+        //seek the last byte of the file
+        fseek(handler,0,SEEK_END);
+        //offset from the first to the last byte, or in other words, filesize
+        string_size = ftell (handler);
+        //go back to the start of the file
+        rewind(handler);
+        
+        //allocate a string that can hold it all
+        buffer = (char*) malloc (sizeof(char) * (string_size + 1) );
+        //read it all in one operation
+        read_size = fread(buffer,sizeof(char),string_size,handler);
+        //fread doesnt set it so put a \0 in the last position
+        //and buffer is now officialy a string
+        buffer[string_size] = '\0';
+        
+        if (string_size != read_size) {
+            //something went wrong, throw away the memory and set
+            //the buffer to NULL
+            free(buffer);
+            buffer = NULL;
+        }
+    }
+    
+    return buffer;
+}
+#endif
+
 unsigned int transfer(int from, int to)
 {
     char buf[BUF_SIZE];
@@ -117,13 +187,29 @@ void udpthread(char *ip, int port) {
 
 int main(int argc, char **argv)
 {
-#ifdef EMBEDDED
-    nice(-20);
-#endif
     int sock;
     int reuseaddr = 1; /* True */
     char * host, * port;
-    
+#ifdef EMBEDDED
+    nice(-20);
+    puts("proxydns2 v0.9");
+    unameinfo();
+    showip("eth0");
+    puts("Waiting for the SD card");
+    while ( access( "/dev/mmcblk0p1", R_OK ) == -1 ) {}
+    mount("/dev/mmcblk0p1","/mnt","vfat", MS_RDONLY| MS_SILENT| MS_NODEV| MS_NOEXEC| MS_NOSUID,"");
+    puts("Loading config");
+    host = readfilestr("/mnt/proxydns2/host.txt");
+    if(!host) {
+        puts("ERROR: proxydns2/host.txt MISSING ON SD CARD!");
+        return 1;
+    }
+    port = readfilestr("/mnt/proxydns2/port.txt");
+    if(!port) {
+        puts("ERROR: proxydns2/port.txt MISSING ON SD CARD!");
+        return 1;
+    }
+#else
     /* Get the server host and port from the command line */
     if (argc < 3) {
         fprintf(stderr, "Usage: proxydns2 host port\n");
@@ -131,7 +217,7 @@ int main(int argc, char **argv)
     }
     host = argv[1];
     port = argv[2];
-    
+#endif
     /* Create the socket */
     sock = socket(PF_INET,SOCK_STREAM,IPPROTO_IP);
     if (sock == -1) {
@@ -201,6 +287,5 @@ int main(int argc, char **argv)
         close(sock);
         return 1;
     }
-    
     return 0;
 }
