@@ -4,7 +4,7 @@ mkdir tmpgit
 cd tmpgit
 git clone git://github.com/parrotgeek1/proxydns2.git
 cd proxydns2
-CCPREFIX="$HOME/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-" EXTRAFLAGS="-DEMBEDDED -static" ./make.sh
+CCPREFIX="$HOME/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-" EXTRAFLAGS="-Wno-unused-parameter -DEMBEDDED -static" ./make.sh
 mv proxydns2 ../../
 cd ../../
 rm -rf tmpgit
@@ -35,7 +35,7 @@ gzip ../sdcard/initrd
 cd ..
 
 curl -L -o fw.zip https://github.com/Hexxeh/rpi-firmware/archive/master.zip
-unzip -o fw.zip
+unzip -q -o fw.zip
 mv rpi-firmware-master/* sdcard/
 rm -rf fw.zip rpi-firmware-master
 cd sdcard

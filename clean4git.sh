@@ -1,2 +1,2 @@
 #!/bin/sh
-rm -f proxydns2 sdcard
+sudo rm -rf proxydns2 sdcard
