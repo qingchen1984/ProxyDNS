@@ -1,6 +1,9 @@
 jproxydns, but in c, and way better
 ===================================
 
+You *must* run rpi_image.sh with sudo!
+--------------------------------------
+
 to find dns that's on other ports
 
 https://www.google.com/search?client=safari&rls=en&ie=UTF-8&oe=UTF-8&q=%22iptables+-t+nat+-A+PREROUTING+-i+br0+-p+udp+--dport+53+-j+DNAT%22+-nvram&tbs=li 1&filter=0
