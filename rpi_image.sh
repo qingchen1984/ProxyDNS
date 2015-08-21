@@ -1,13 +1,4 @@
 #!/bin/sh
-rm -rf tmpgit
-mkdir tmpgit
-cd tmpgit
-git clone git://github.com/parrotgeek1/proxydns2.git
-cd proxydns2
-CCPREFIX="$HOME/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-" EXTRAFLAGS="-Wno-unused-parameter -DEMBEDDED -static" ./make.sh
-mv proxydns2 ../../
-cd ../../
-rm -rf tmpgit
 
 rm -rf initrd sdcard
 mkdir -p initrd sdcard
@@ -26,13 +17,16 @@ mv usr/lib/klibc/bin/kinit ../initrd/
 cd ..
 rm -rf kl1
 
+CCPREFIX="$HOME/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-" EXTRAFLAGS="-Wno-unused-parameter -DEMBEDDED -static" ./make.sh
+
 cd initrd
-cp ../proxydns2 root/
+mv ../proxydns2 root/
 chown -R 0:0 .
 chmod -R 0755 .
 find . | cpio -H newc -o > ../sdcard/initrd
 gzip ../sdcard/initrd
 cd ..
+rm -rf initrd
 
 curl -L -o fw.zip https://github.com/Hexxeh/rpi-firmware/archive/master.zip
 unzip -q -o fw.zip
@@ -55,10 +49,8 @@ printf "185.37.37.37" > host.txt
 printf 54 > port.txt
 
 cd ..
-
 chmod -R 0755 .
 chown -R $(logname):$(sudo -u $(logname) groups | cut -d ' ' -f 1) .
 
 cd ..
-rm -rf initrd proxydns2
 echo Done
