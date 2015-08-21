@@ -113,7 +113,7 @@ void handle(int client, char *host, int port)
     /* Create the socket */
     server = socket(PF_INET,SOCK_STREAM,IPPROTO_IP);
     if (server == -1) {
-        perror("tcp: socket");
+        perror("TCP error: socket");
         close(client);
         return;
     }
@@ -124,7 +124,7 @@ void handle(int client, char *host, int port)
     
     /* Connect to the host */
     if (connect(server, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1) {
-        perror("tcp: connect");
+        perror("TCP error: connect");
         close(client);
         return;
     }
@@ -142,7 +142,7 @@ void handle(int client, char *host, int port)
         FD_SET(client, &set);
         FD_SET(server, &set);
         if (select(max_sock + 1, &set, NULL, NULL, NULL) == -1) {
-            perror("tcp: select");
+            perror("TCP error: select");
             break;
         }
         if (FD_ISSET(client, &set)) {
@@ -163,7 +163,7 @@ void udpthread(char *ip, int port) {
     a.sin_family=AF_INET;
     a.sin_addr.s_addr=inet_addr("0.0.0.0"); a.sin_port=htons(53);
     if(bind(os,(struct sockaddr *)&a,sizeof(a)) == -1) {
-        perror("udp: bind");
+        perror("UDP error: bind");
         exit(1); 
     }
     
@@ -195,7 +195,7 @@ int main(int argc, char **argv)
     char * host, * port;
 #ifdef EMBEDDED
     nice(-20);
-    puts("proxydns2 v0.9");
+    puts("ProxyDNS OS v0.9 starting");
     unameinfo();
     showip("eth0");
     puts("Waiting for the SD card");
@@ -226,14 +226,14 @@ int main(int argc, char **argv)
     /* Create the socket */
     sock = socket(PF_INET,SOCK_STREAM,IPPROTO_IP);
     if (sock == -1) {
-        perror("tcp: socket");
+        perror("TCP error: socket");
         
         return 1;
     }
     
     /* Enable the socket to reuse the address */
     if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(int)) == -1) {
-        perror("tcp: setsockopt");
+        perror("TCP error: setsockopt");
         
         return 1;
     }
@@ -242,14 +242,14 @@ int main(int argc, char **argv)
     atcp.sin_addr.s_addr=inet_addr("0.0.0.0"); atcp.sin_port=htons(53);
     /* Bind to the address */
     if (bind(sock, (struct sockaddr *)&atcp,sizeof(atcp)) == -1) {
-        perror("tcp: bind");
+        perror("TCP error: bind");
         
         return 1;
     }
     
     /* Listen */
     if (listen(sock, BACKLOG) == -1) {
-        perror("tcp: listen");
+        perror("TCP error: listen");
         
         return 1;
     }
@@ -274,7 +274,7 @@ int main(int argc, char **argv)
             int newsock = accept(sock, (struct sockaddr*)&their_addr, &size);
             
             if (newsock == -1) {
-                perror("tcp: accept");
+                perror("TCP error: accept");
             }
             else {
                 handle(newsock, host, atoi(port));
