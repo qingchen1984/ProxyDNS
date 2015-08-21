@@ -55,7 +55,9 @@ printf "185.37.37.37" > host.txt
 printf 54 > port.txt
 
 cd ..
+
 chmod -R 0755 .
+chown -R $(logname):$(sudo -u $(logname) groups | cut -d ' ' -f 1) .
 
 cd ..
 rm -rf initrd proxydns2
