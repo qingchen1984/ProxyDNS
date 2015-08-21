@@ -15,6 +15,8 @@
 #ifdef EMBEDDED
 #include <sys/utsname.h>
 #include <sys/mount.h>
+#include <linux/types.h>
+#include <linux/if.h>
 
 void showip(char *interface) {
     int fd;
