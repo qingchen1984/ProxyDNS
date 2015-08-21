@@ -35,7 +35,7 @@ void showip(char *interface) {
     close(fd);
     
     /* display result */
-    printf("IP address of %s: %s\n", interface, inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+    printf("This device's IP address: %s\n", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
 }
 
 
@@ -163,14 +163,15 @@ void udpthread(char *ip, int port) {
     a.sin_family=AF_INET;
     a.sin_addr.s_addr=inet_addr("0.0.0.0"); a.sin_port=htons(53);
     if(bind(os,(struct sockaddr *)&a,sizeof(a)) == -1) {
-        printf("udp Can't bind our address\n");
-        exit(1); }
+        perror("udp: bind");
+        exit(1); 
+    }
     
     a.sin_addr.s_addr=inet_addr(ip); a.sin_port=htons(port);
     
     struct sockaddr_in sa;
     struct sockaddr_in da; da.sin_addr.s_addr=0;
-    puts("started UDP");
+    puts("Started UDP thread");
     while(1) {
         char buf[256];
         socklen_t sn=sizeof(sa);
@@ -200,7 +201,7 @@ int main(int argc, char **argv)
     puts("Waiting for the SD card");
     while ( access( "/dev/mmcblk0p1", R_OK ) == -1 ) {}
     mount("/dev/mmcblk0p1","/mnt","vfat", MS_RDONLY| MS_SILENT| MS_NODEV| MS_NOEXEC| MS_NOSUID,"");
-    puts("Loading config");
+    puts("Loading configuration files");
     host = readfilestr("/mnt/proxydns2/host.txt");
     if(!host) {
         puts("ERROR: proxydns2/host.txt MISSING ON SD CARD!");
@@ -220,6 +221,7 @@ int main(int argc, char **argv)
     }
     host = argv[1];
     port = argv[2];
+    printf("Using proxy DNS server at %s port %s\n",host,port);
 #endif
     /* Create the socket */
     sock = socket(PF_INET,SOCK_STREAM,IPPROTO_IP);
@@ -252,8 +254,6 @@ int main(int argc, char **argv)
         return 1;
     }
     
-    
-    
     /* Ignore broken pipe signal */
     signal(SIGPIPE, SIG_IGN);
     pid_t pid = fork();
@@ -267,7 +267,7 @@ int main(int argc, char **argv)
     {
         // parent process
         /* Main loop */
-        puts("started TCP");
+        puts("Started TCP thread");
         while (1) {
             socklen_t size = sizeof(struct sockaddr_in);
             struct sockaddr_in their_addr;
