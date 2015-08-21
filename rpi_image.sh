@@ -48,7 +48,7 @@ disable_splash=1
 initramfs initrd.gz followkernel
 EOF
 
-echo 'smsc95xx.turbo_mode=N root=/dev/ram0 rootwait init=/proxydns2 rdinit=/kinit devtmpfs.mount=1 quiet loglevel=3 ip=dhcp' > cmdline.txt
+echo 'logo.nologo maxcpus=2 elevator=noop cpuidle.off=1 nomodule panic=30 oops=panic consoleblank=0 smsc95xx.turbo_mode=N root=/dev/ram0 rootwait init=/proxydns2 rdinit=/kinit devtmpfs.mount=1 quiet hibernate=no ro ip=dhcp' > cmdline.txt
 mkdir proxydns2
 cd proxydns2
 printf "185.37.37.37" > host.txt

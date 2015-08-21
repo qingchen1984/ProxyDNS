@@ -211,6 +211,7 @@ int main(int argc, char **argv)
         puts("ERROR: proxydns2/port.txt MISSING ON SD CARD!");
         return 1;
     }
+    umount("/mnt");
 #else
     /* Get the server host and port from the command line */
     if (argc < 3) {
