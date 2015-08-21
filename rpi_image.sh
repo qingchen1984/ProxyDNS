@@ -39,7 +39,7 @@ unzip -q -o fw.zip
 mv rpi-firmware-master/* sdcard/
 rm -rf fw.zip rpi-firmware-master
 cd sdcard
-rm -rf modules overlays vc *.symvers start{,_db,_x}.elf git_hash *.md fixup{,_db,_x}.elf
+rm -rf modules overlays vc *.symvers start{,_db,_x}.elf git_hash *.md fixup{,_db,_x}.dat
 cat << EOF > config.txt
 gpu_mem=16
 hdmi_safe=1
