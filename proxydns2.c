@@ -15,6 +15,8 @@
 #ifdef EMBEDDED
 #include <sys/utsname.h>
 #include <sys/mount.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 void unameinfo(void) {
     struct utsname buffer;
@@ -195,24 +197,23 @@ int main(int argc, char **argv)
     }
     umount("/mnt");
     printf("Running ipconfig: %s\n",ipconfstr);
-    pid_t parent = getpid();
-    pid_t pid = fork();
+    pid_t pidip = fork();
     
-    if (pid == -1)
+    if (pidip == -1)
     {
         // fork failed
         perror("fork");
         return 1;
     }
-    else if (pid > 0)
+    else if (pidip > 0)
     {
         int status;
-        waitpid(pid, &status, 0);
+        waitpid(pidip, &status, 0);
     }
     else
     {
         // we are the child
-        execl("/ipconfig","ipconfig",ipconfstr);
+        execl("/ipconfig","ipconfig",ipconfstr,NULL);
         _exit(EXIT_FAILURE);   // exec never returns
     }
     free(ipconfstr);
