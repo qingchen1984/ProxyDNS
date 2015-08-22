@@ -169,14 +169,16 @@ void udpthread(char *ip, int port) {
 
 int main(int argc, char **argv)
 {
+    printf("\e[1;1H\e[2J"); // clear spurious vchiq errors
     int sock;
     int reuseaddr = 1; /* True */
     char * host, * port, * ipconfstr;
 #ifdef EMBEDDED
     nice(-20);
-    puts("ProxyDNS OS v0.9 starting");
+    puts("ProxyDNS OS v0.9");
     unameinfo();
     puts("Loading configuration files");
+    mount("/dev/mmcblk0p1","/mnt","vfat", MS_RDONLY| MS_SILENT| MS_NODEV| MS_NOEXEC| MS_NOSUID,"");
     host = readfilestr("/mnt/proxydns/host.txt");
     if(!host) {
         puts("ERROR: proxydns/host.txt MISSING ON SD CARD!");
