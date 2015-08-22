@@ -3,7 +3,7 @@
 rm -rf initrd sdcard
 mkdir -p initrd sdcard
 cd initrd
-mkdir dev mnt proc sys root
+mkdir dev mnt lib
 cd ..
 
 rm -rf kl1
@@ -13,14 +13,25 @@ curl -L -o kl1.deb http://mirrordirector.raspbian.org/raspbian/pool/main/k/klibc
 ar x kl1.deb
 rm debian-binary control*
 xzcat data.tar.xz | tar xf -
-mv usr/lib/klibc/bin/kinit ../initrd/
+mv usr/lib/klibc/bin/ipconfig ../initrd/
 cd ..
 rm -rf kl1
+
+rm -rf kl2
+mkdir kl2
+cd kl2
+curl -L -o kl2.deb http://mirrordirector.raspbian.org/raspbian/pool/main/k/klibc/`curl -sL http://mirrordirector.raspbian.org/raspbian/pool/main/k/klibc/ | grep 'libklibc_' | sort | tail -n 1 | tr '<' '\n' | grep '^a href="' | grep -F '.deb"' | cut -d '"' -f 2`
+ar x kl2.deb
+rm debian-binary control*
+xzcat data.tar.xz | tar xf -
+mv lib/* ../initrd/lib/
+cd ..
+rm -rf kl2
 
 CCPREFIX="$HOME/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-" EXTRAFLAGS="-Wno-unused-parameter -DEMBEDDED -static" ./make.sh
 
 cd initrd
-mv ../proxydns2 root/
+mv ../proxydns2 init
 chown -R 0:0 .
 chmod -R 0755 .
 find . | cpio -H newc -o > ../sdcard/initrd
@@ -42,11 +53,12 @@ disable_splash=1
 initramfs initrd.gz followkernel
 EOF
 
-echo 'logo.nologo maxcpus=2 elevator=noop nomodule panic=30 oops=panic consoleblank=0 smsc95xx.turbo_mode=N root=/dev/ram0 rootwait init=/proxydns2 rdinit=/kinit devtmpfs.mount=1 quiet hibernate=no ro ip=dhcp' > cmdline.txt
-mkdir proxydns2
-cd proxydns2
+echo 'logo.nologo maxcpus=2 elevator=noop nomodule panic=30 oops=panic consoleblank=0 smsc95xx.turbo_mode=N root=/dev/ram0 rootwait init=/init devtmpfs.mount=1 quiet hibernate=no ro' > cmdline.txt
+mkdir proxydns
+cd proxydns
 printf "185.37.37.37" > host.txt
 printf 54 > port.txt
+printf "ip=dhcp" > ipconfig.txt
 
 cd ..
 chmod -R 0755 .

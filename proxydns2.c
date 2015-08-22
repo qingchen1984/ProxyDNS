@@ -15,29 +15,6 @@
 #ifdef EMBEDDED
 #include <sys/utsname.h>
 #include <sys/mount.h>
-#include <linux/types.h>
-#include <linux/if.h>
-
-void showip(char *interface) {
-    int fd;
-    struct ifreq ifr;
-    
-    fd = socket(AF_INET, SOCK_DGRAM, 0);
-    
-    /* I want to get an IPv4 IP address */
-    ifr.ifr_addr.sa_family = AF_INET;
-    
-    /* I want IP address attached to "eth0" */
-    strncpy(ifr.ifr_name, interface, IFNAMSIZ-1);
-    
-    ioctl(fd, SIOCGIFADDR, &ifr);
-    
-    close(fd);
-    
-    /* display result */
-    printf("This device's IP address: %s\n", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
-}
-
 
 void unameinfo(void) {
     struct utsname buffer;
@@ -164,7 +141,7 @@ void udpthread(char *ip, int port) {
     a.sin_addr.s_addr=inet_addr("0.0.0.0"); a.sin_port=htons(53);
     if(bind(os,(struct sockaddr *)&a,sizeof(a)) == -1) {
         perror("UDP error: bind");
-        exit(1); 
+        exit(1);
     }
     
     a.sin_addr.s_addr=inet_addr(ip); a.sin_port=htons(port);
@@ -192,27 +169,53 @@ int main(int argc, char **argv)
 {
     int sock;
     int reuseaddr = 1; /* True */
-    char * host, * port;
+    char * host, * port, * ipconfstr;
 #ifdef EMBEDDED
     nice(-20);
     puts("ProxyDNS OS v0.9 starting");
     unameinfo();
-    showip("eth0");
     puts("Waiting for the SD card");
     while ( access( "/dev/mmcblk0p1", R_OK ) == -1 ) {}
     mount("/dev/mmcblk0p1","/mnt","vfat", MS_RDONLY| MS_SILENT| MS_NODEV| MS_NOEXEC| MS_NOSUID,"");
     puts("Loading configuration files");
-    host = readfilestr("/mnt/proxydns2/host.txt");
+    host = readfilestr("/mnt/proxydns/host.txt");
     if(!host) {
-        puts("ERROR: proxydns2/host.txt MISSING ON SD CARD!");
+        puts("ERROR: proxydns/host.txt MISSING ON SD CARD!");
         return 1;
     }
-    port = readfilestr("/mnt/proxydns2/port.txt");
+    port = readfilestr("/mnt/proxydns/port.txt");
     if(!port) {
-        puts("ERROR: proxydns2/port.txt MISSING ON SD CARD!");
+        puts("ERROR: proxydns/port.txt MISSING ON SD CARD!");
+        return 1;
+    }
+    ipconfstr = readfilestr("/mnt/proxydns/ipconfig.txt");
+    if(!ipconfstr) {
+        puts("ERROR: proxydns/ipconfig.txt MISSING ON SD CARD!");
         return 1;
     }
     umount("/mnt");
+    printf("Running ipconfig: %s\n",ipconfstr);
+    pid_t parent = getpid();
+    pid_t pid = fork();
+    
+    if (pid == -1)
+    {
+        // fork failed
+        perror("fork");
+        return 1;
+    }
+    else if (pid > 0)
+    {
+        int status;
+        waitpid(pid, &status, 0);
+    }
+    else
+    {
+        // we are the child
+        execl("/ipconfig","ipconfig",ipconfstr);
+        _exit(EXIT_FAILURE);   // exec never returns
+    }
+    free(ipconfstr);
 #else
     /* Get the server host and port from the command line */
     if (argc < 3) {
