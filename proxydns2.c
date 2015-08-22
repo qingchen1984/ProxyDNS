@@ -1,5 +1,6 @@
 #define CFG_HOST "185.37.37.37"
 #define CFG_PORT "54"
+#define CFG_IP "ip=dhcp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -145,13 +146,10 @@ int main(int argc, char **argv)
     port = CFG_PORT;
 #ifdef EMBEDDED
     nice(-20);
-    puts("ProxyDNS OS v0.9");
+    puts("ProxyDNS OS v1.0, built on " __DATE__ " at " __TIME__);
     unameinfo();
     mount("none","/proc","proc", 0,NULL);
     mount("none","/sys","sysfs", 0,NULL);
-    puts("Waiting 2 seconds for network device");
-    sleep(2);
-    puts("Running ipconfig");
     pid_t pidip = fork();
     
     if (pidip == -1)
@@ -168,7 +166,7 @@ int main(int argc, char **argv)
     else
     {
         // we are the child
-        execl("/ipconfig","ipconfig","ip=dhcp",NULL);
+        execl("/ipconfig","ipconfig",CFG_IP,NULL);
         _exit(EXIT_FAILURE);   // exec never returns
     }
 #else

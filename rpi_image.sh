@@ -47,7 +47,6 @@ cd sdcard
 rm -rf modules overlays vc *.symvers start{,_db,_x}.elf git_hash *.md fixup{,_db,_x}.dat
 cat << EOF > config.txt
 gpu_mem=16
-hdmi_safe=1
 boot_delay=0
 disable_splash=1
 initramfs initrd.gz followkernel
