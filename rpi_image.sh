@@ -9,7 +9,7 @@ cd ..
 rm -rf kl1
 mkdir kl1
 cd kl1
-curl -L -o kl1.deb http://mirrordirector.raspbian.org/raspbian/pool/main/k/klibc/`curl -sL http://mirrordirector.raspbian.org/raspbian/pool/main/k/klibc/ | grep 'klibc-utils_' | sort | tail -n 1 | tr '<' '\n' | grep '^a href="' | grep -F '.deb"' | cut -d '"' -f 2`
+curl -s -L -o kl1.deb http://mirrordirector.raspbian.org/raspbian/pool/main/k/klibc/`curl -sL http://mirrordirector.raspbian.org/raspbian/pool/main/k/klibc/ | grep 'klibc-utils_' | sort | tail -n 1 | tr '<' '\n' | grep '^a href="' | grep -F '.deb"' | cut -d '"' -f 2`
 ar x kl1.deb
 rm debian-binary control*
 xzcat data.tar.xz | tar xf -
@@ -20,7 +20,7 @@ rm -rf kl1
 rm -rf kl2
 mkdir kl2
 cd kl2
-curl -L -o kl2.deb http://mirrordirector.raspbian.org/raspbian/pool/main/k/klibc/`curl -sL http://mirrordirector.raspbian.org/raspbian/pool/main/k/klibc/ | grep 'libklibc_' | sort | tail -n 1 | tr '<' '\n' | grep '^a href="' | grep -F '.deb"' | cut -d '"' -f 2`
+curl -s -L -o kl2.deb http://mirrordirector.raspbian.org/raspbian/pool/main/k/klibc/`curl -sL http://mirrordirector.raspbian.org/raspbian/pool/main/k/klibc/ | grep 'libklibc_' | sort | tail -n 1 | tr '<' '\n' | grep '^a href="' | grep -F '.deb"' | cut -d '"' -f 2`
 ar x kl2.deb
 rm debian-binary control*
 xzcat data.tar.xz | tar xf -
