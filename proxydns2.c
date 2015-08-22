@@ -150,6 +150,8 @@ int main(int argc, char **argv)
     unameinfo();
     mount("none","/proc","proc", 0,NULL);
     mount("none","/sys","sysfs", 0,NULL);
+    puts("Waiting 2 seconds for network device");
+    sleep(2);
     pid_t pidip = fork();
     
     if (pidip == -1)
