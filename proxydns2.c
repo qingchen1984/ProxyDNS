@@ -1,3 +1,6 @@
+#define CFG_HOST "185.37.37.37"
+#define CFG_PORT "54"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> /* memset() */
@@ -25,41 +28,6 @@ void unameinfo(void) {
         return;
     }
     printf("Running on %s %s %s %s\n", buffer.sysname,buffer.release,buffer.version,buffer.machine);
-}
-
-
-char* readfilestr(char *filename)
-{
-    char *buffer = NULL;
-    int string_size,read_size;
-    FILE *handler = fopen(filename,"r");
-    
-    if (handler)
-    {
-        //seek the last byte of the file
-        fseek(handler,0,SEEK_END);
-        //offset from the first to the last byte, or in other words, filesize
-        string_size = ftell (handler);
-        //go back to the start of the file
-        rewind(handler);
-        
-        //allocate a string that can hold it all
-        buffer = (char*) malloc (sizeof(char) * (string_size + 1) );
-        //read it all in one operation
-        read_size = fread(buffer,sizeof(char),string_size,handler);
-        //fread doesnt set it so put a \0 in the last position
-        //and buffer is now officialy a string
-        buffer[string_size] = '\0';
-        
-        if (string_size != read_size) {
-            //something went wrong, throw away the memory and set
-            //the buffer to NULL
-            free(buffer);
-            buffer = NULL;
-        }
-    }
-    
-    return buffer;
 }
 #endif
 
@@ -172,30 +140,14 @@ int main(int argc, char **argv)
     printf("\e[1;1H\e[2J"); // clear spurious vchiq errors
     int sock;
     int reuseaddr = 1; /* True */
-    char * host, * port, * ipconfstr;
+    char * host, * port;
 #ifdef EMBEDDED
     nice(-20);
     puts("ProxyDNS OS v0.9");
     unameinfo();
-    puts("Loading configuration files");
-    mount("/dev/mmcblk0p1","/mnt","vfat", MS_RDONLY| MS_SILENT| MS_NODEV| MS_NOEXEC| MS_NOSUID,"");
-    host = readfilestr("/mnt/proxydns/host.txt");
-    if(!host) {
-        puts("ERROR: proxydns/host.txt MISSING ON SD CARD!");
-        return 1;
-    }
-    port = readfilestr("/mnt/proxydns/port.txt");
-    if(!port) {
-        puts("ERROR: proxydns/port.txt MISSING ON SD CARD!");
-        return 1;
-    }
-    ipconfstr = readfilestr("/mnt/proxydns/ipconfig.txt");
-    if(!ipconfstr) {
-        puts("ERROR: proxydns/ipconfig.txt MISSING ON SD CARD!");
-        return 1;
-    }
-    umount("/mnt");
-    printf("Running ipconfig: %s\n",ipconfstr);
+    host = CFG_HOST;
+    port = CFG_PORT;
+    printf("Running ipconfig\n");
     pid_t pidip = fork();
     
     if (pidip == -1)
@@ -212,10 +164,9 @@ int main(int argc, char **argv)
     else
     {
         // we are the child
-        execl("/ipconfig","ipconfig",ipconfstr,NULL);
+        execl("/ipconfig","ipconfig","ip=dhcp",NULL);
         _exit(EXIT_FAILURE);   // exec never returns
     }
-    free(ipconfstr);
 #else
     /* Get the server host and port from the command line */
     if (argc < 3) {

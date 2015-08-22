@@ -3,7 +3,7 @@
 rm -rf initrd sdcard
 mkdir -p initrd sdcard
 cd initrd
-mkdir dev mnt lib
+mkdir dev lib
 cd ..
 
 rm -rf kl1
@@ -53,12 +53,7 @@ disable_splash=1
 initramfs initrd.gz followkernel
 EOF
 
-echo 'logo.nologo maxcpus=2 elevator=noop nomodule panic=30 oops=panic consoleblank=0 smsc95xx.turbo_mode=N root=/dev/mmcblk0p1 rootwait rdinit=/init devtmpfs.mount=1 quiet hibernate=no ro' > cmdline.txt
-mkdir proxydns
-cd proxydns
-printf "185.37.37.37" > host.txt
-printf 54 > port.txt
-printf "ip=dhcp" > ipconfig.txt
+echo 'logo.nologo maxcpus=2 elevator=noop nomodule panic=30 oops=panic consoleblank=0 smsc95xx.turbo_mode=N root=/dev/ram0 rootwait init=/init devtmpfs.mount=1 quiet hibernate=no ro' > cmdline.txt
 
 cd ..
 chmod -R 0755 .
