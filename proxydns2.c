@@ -176,9 +176,6 @@ int main(int argc, char **argv)
     nice(-20);
     puts("ProxyDNS OS v0.9 starting");
     unameinfo();
-    puts("Waiting for the SD card");
-    while ( access( "/dev/mmcblk0p1", R_OK ) == -1 ) {}
-    mount("/dev/mmcblk0p1","/mnt","vfat", MS_RDONLY| MS_SILENT| MS_NODEV| MS_NOEXEC| MS_NOSUID,"");
     puts("Loading configuration files");
     host = readfilestr("/mnt/proxydns/host.txt");
     if(!host) {
