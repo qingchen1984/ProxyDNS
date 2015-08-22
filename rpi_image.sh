@@ -3,7 +3,7 @@
 rm -rf initrd sdcard
 mkdir -p initrd sdcard
 cd initrd
-mkdir dev lib
+mkdir dev lib proc sys
 cd ..
 
 rm -rf kl1

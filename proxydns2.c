@@ -141,13 +141,17 @@ int main(int argc, char **argv)
     int sock;
     int reuseaddr = 1; /* True */
     char * host, * port;
+    host = CFG_HOST;
+    port = CFG_PORT;
 #ifdef EMBEDDED
     nice(-20);
     puts("ProxyDNS OS v0.9");
     unameinfo();
-    host = CFG_HOST;
-    port = CFG_PORT;
-    printf("Running ipconfig\n");
+    mount("none","/proc","proc", 0,NULL);
+    mount("none","/sys","sysfs", 0,NULL);
+    puts("Waiting 2 seconds for network device");
+    sleep(2);
+    puts("Running ipconfig");
     pid_t pidip = fork();
     
     if (pidip == -1)
