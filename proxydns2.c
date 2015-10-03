@@ -146,6 +146,7 @@ int main(int argc, char **argv)
     puts("ProxyDNS "
 #ifdef EMBEDDED
     "OS "
+#endif
 "v1.0.1, built on " __DATE__ " at " __TIME__);
 #ifdef EMBEDDED
     printf("\e[1;1H\e[2J"); // clear spurious vchiq errors
