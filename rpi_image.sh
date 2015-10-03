@@ -59,6 +59,7 @@ echo 'logo.nologo elevator=noop nomodule panic=30 oops=panic consoleblank=0 smsc
 
 cd ..
 rm -f rpi-release.zip
+find sdcard -type f -name '.DS_Store' -delete
 zip -9 -r rpi-release.zip sdcard
 chmod -R 0755 .
 chown -R $(logname):$(sudo -u $(logname) groups | cut -d ' ' -f 1) .
