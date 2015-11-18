@@ -55,5 +55,9 @@ iptables http://unix.stackexchange.com/questions/144482/iptables-to-redirect-dns
 support ipv6 server&client
 add error checking for atoi etc
 re-add working config file loader
+klibc
+web interface for config dhcp or not, etc
 udp connection tracking
 use a random server from a list
+support a5-v11 etc
+use smaller kernel
